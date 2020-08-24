@@ -9,8 +9,8 @@
     <b-collapse id="nav-collapse" is-nav>
       <b-navbar-nav>
         <router-link to="/" class="nav-link">Home</router-link>
-        <b-nav-item href="#">Link</b-nav-item>
-        <b-nav-item href="#">Link</b-nav-item>
+        <b-nav-item href="https://pokeapi.co" target="_blank">PokéAPI</b-nav-item>
+        <b-nav-item href="https://pokeapi.co/docs/v2" target="_blank">PokéAPI Docs</b-nav-item>
       </b-navbar-nav>
 
       <!-- Right aligned nav items -->

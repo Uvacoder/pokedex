@@ -1,10 +1,12 @@
 <template>
   <div id="app">
     <Navbar class="mb-5" />
-    <b-container>
-      <button @click.prevent="fetchData(pokeNum)" class="mb-3">Get Data</button>
-    </b-container>
-    <router-view :pokeList="pokeList" />
+    <router-view :pokeList="pokeList" @load-more="loadMorePokemon()" />
+    <footer class="bg-dark text-light py-4 mt-5">
+      <span class="d-block text-center small">
+        No. of Pok&#233;mon loaded: {{ pokeCount }}
+      </span>
+    </footer>
   </div>
 </template>
 
@@ -24,9 +26,13 @@ export default class App extends Vue {
   private pokeNum = 10;
 
 
-  // created() {
-  //   this.fetchData(this.pokeNum);
-  // }
+  mounted() {
+    this.fetchData(this.pokeNum);
+  }
+
+  get pokeCount(): number {
+    return this.pokeList.length;
+  }
 
   async getPokemon(current: number): Promise<void> {
     const data: Response = await fetch(`https://pokeapi.co/api/v2/pokemon/${current}`);
@@ -38,18 +44,28 @@ export default class App extends Vue {
       id: returnData.id,
       name: returnData.name,
       order: returnData.order,
-      picture: returnData.sprites.front_default
+      picture: returnData.sprites.front_default,
     };
 
     this.pokeList.push(onePokemon);
   }
 
   fetchData(num: number): void {
-    for (let i = 1; i < num; i++) {
+    let i: number = this.pokeList.length + 1;
+    for (i; i <= num; i++) {
       this.getPokemon(i);
     }
+  }
+
+  loadMorePokemon():void {
+    this.pokeNum = this.pokeCount + 10; // adjust app state
+    this.fetchData(this.pokeNum); // get more data!
   }
 }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+  .caps {
+    text-transform: capitalize;
+  }
+</style>

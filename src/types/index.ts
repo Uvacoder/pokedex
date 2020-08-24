@@ -6,13 +6,14 @@ export interface Pokemon {
 }
 
 export interface PokemonDetail {
-  abilities: Array<object>,
-  evolution: Array<object>,
+  abilities: Array<string>,
+  evolution: Array<string>,
   id: number,
-  moves: Array<object>,
+  moves: Array<string>,
   name: string,
   order: number,
   picture: string // obj.sprites.other.official-artwork.front_default -- returns a PNG
   species: string,
   stats: Array<object>,
+  type: Array<string>
 }
