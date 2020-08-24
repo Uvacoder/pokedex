@@ -1,32 +1,55 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view />
+    <Navbar class="mb-5" />
+    <b-container>
+      <button @click.prevent="fetchData(pokeNum)" class="mb-3">Get Data</button>
+    </b-container>
+    <router-view :pokeList="pokeList" />
   </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
+import Navbar from "@/components/Navbar.vue";
 
-#nav {
-  padding: 30px;
+import { Pokemon } from "@/types";
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
+@Component({
+  components: {
+    Navbar
+  }
+})
+export default class App extends Vue {
+  private pokeList: Array<object> = [];
+  private pokeNum = 10;
 
-    &.router-link-exact-active {
-      color: #42b983;
+
+  // created() {
+  //   this.fetchData(this.pokeNum);
+  // }
+
+  async getPokemon(current: number): Promise<void> {
+    const data: Response = await fetch(`https://pokeapi.co/api/v2/pokemon/${current}`);
+    const returnData = await data.json();
+
+    // console.log(returnData);
+
+    const onePokemon: Pokemon = {
+      id: returnData.id,
+      name: returnData.name,
+      order: returnData.order,
+      picture: returnData.sprites.front_default
+    };
+
+    this.pokeList.push(onePokemon);
+  }
+
+  fetchData(num: number): void {
+    for (let i = 1; i < num; i++) {
+      this.getPokemon(i);
     }
   }
 }
-</style>
+</script>
+
+<style lang="scss"></style>
