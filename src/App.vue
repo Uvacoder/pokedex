@@ -28,6 +28,7 @@ export default class App extends Vue {
 
   mounted() {
     this.fetchData(this.pokeNum);
+    // ToDo: sort by ID
   }
 
   get pokeCount(): number {

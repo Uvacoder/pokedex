@@ -1,8 +1,59 @@
 <template>
-  <div class="PokeDetails container">
-    <h1 class="mb-5">This is the template for the details page page</h1>
-
-  </div>
+  <b-container class="PokeDetails">
+    <b-row>
+      <b-col>
+        <h1 class="caps">
+          <span class="text-muted small">Details: </span>
+          {{ pokemon.name }}
+        </h1>
+        <hr class="mb-md-4" />
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col cols="12" md="6">
+        <img :src="pokemon.picture" :alt="pokemon.name" class="img-fluid">
+      </b-col>
+      <b-col cols="12" md="6">
+        <h2>Basic Information</h2>
+        <hr />
+        <ul>
+          <li>Species: <span class="caps">{{ pokemon.species }}</span></li>
+          <li>ID: {{ pokemon.id }}</li>
+          <li>Order #: {{ pokemon.order }}</li>
+          <li>Types:<br>
+            <ul>
+              <li v-for="(type, index) in pokemon.type" :key="index" class="caps">{{ type }}</li>
+            </ul>
+          </li>
+        </ul>
+        <h2>Stats</h2>
+        <hr />
+        <ul>
+          <li v-for="(stat, index) in pokemon.stats" :key="index" class="caps">
+            {{ stat.name }}: {{ stat.value }}
+          </li>
+        </ul>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col cols="12">
+        <h2>Abilities</h2>
+        <hr />
+        <ul class="mb-4">
+          <li v-for="(skill, index) in pokemon.abilities" :key="index" class="caps">
+            {{ skill }}
+          </li>
+        </ul>
+      </b-col>
+      <b-col cols="12">
+        <h2>Moves</h2>
+        <hr />
+        <div class="d-flex flex-wrap">
+          <b-button pill size="sm" v-for="(move, index) in pokemon.moves" :key="index" class="caps m-1" disabled>{{ move }}</b-button>
+        </div>
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <script lang="ts">
@@ -14,8 +65,7 @@ export default class PokeDetails extends Vue {
   private pokemon: PokemonDetail = Object.create({});
 
   get pokemonID(): string {
-    // seems like router converts number -> string somehow, so we've got to work with that...
-    return this.$route.params.id;
+    return this.$route.params.name;
   }
 
   mounted() {
@@ -35,9 +85,9 @@ export default class PokeDetails extends Vue {
     const pokeMoves: Array<string> = returnData.moves.map((el: any) => {return el.move.name});
 
     const pokeStats: Array<object> = returnData.stats.map((el: any) => {
-      const tmp = {statname: '', statvalue:''};
-      tmp.statname = el.stat.name;
-      tmp.statvalue = el.base_stat;
+      const tmp = {name: '', value:''};
+      tmp.name = el.stat.name;
+      tmp.value = el.base_stat;
       return tmp;
     });
 
@@ -46,16 +96,16 @@ export default class PokeDetails extends Vue {
     // shape the data
 
     const thePokemon: PokemonDetail = {
-      abilities: pokeAbilities,
+      abilities: pokeAbilities.sort(),
       evolution: [''],
       id: returnData.id,
-      moves: pokeMoves,
+      moves: pokeMoves.sort(),
       name: returnData.name,
       order: returnData.order,
       picture: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${returnData.id}.png`, // the 'official-artwork' key made problems due to the dash in its name
       species: returnData.species.name,
       stats: pokeStats,
-      type: pokeTypes
+      type: pokeTypes.sort()
     };
 
     this.pokemon = Object.assign({}, thePokemon);
