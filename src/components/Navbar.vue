@@ -13,24 +13,21 @@
         <b-nav-item href="https://pokeapi.co/docs/v2" target="_blank">PokéAPI Docs</b-nav-item>
       </b-navbar-nav>
 
-      <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
-        <b-nav-form>
-          <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
-          <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
-        </b-nav-form>
+        <NavSearch />
       </b-navbar-nav>
     </b-collapse>
   </b-navbar>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+  import { Component, Prop, Vue } from "vue-property-decorator";
+  import NavSearch from "@/components/NavSearch.vue";
 
-@Component
-export default class Navbar extends Vue {}
+  @Component({
+    components: {
+      NavSearch
+    }
+  })
+  export default class Navbar extends Vue {}
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
-</style>

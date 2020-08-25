@@ -1,7 +1,21 @@
 <template>
   <b-col>
-    <h1 class="h3 text-center text-muted mt-5">
-      <b-icon-hourglass /> Loading data...
-    </h1>
+    <p v-html="msg" class="text-center mt-5" />
   </b-col>
 </template>
+
+<script lang="ts">
+  import { Component, Vue } from "vue-property-decorator";
+
+  @Component
+  export default class Loading extends Vue {
+    private msg = "";
+
+    mounted() {
+      this.msg = `Loading data...`;
+      setTimeout(() => {
+        this.msg = `Error retrieving data; timeout or invalid Pokemon name.`;
+      }, 5000);
+    }
+  }
+</script>

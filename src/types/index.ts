@@ -2,7 +2,7 @@ export interface Pokemon {
   id: number,
   name: string,
   order: number,
-  picture: string // obj.sprites.front_default -- returns a PNG
+  picture: string
 }
 
 export interface PokemonDetail {
@@ -12,7 +12,7 @@ export interface PokemonDetail {
   moves: Array<string>,
   name: string,
   order: number,
-  picture: string // obj.sprites.other.official-artwork.front_default -- returns a PNG
+  picture: string
   species: string,
   stats: Array<object>,
   type: Array<string>

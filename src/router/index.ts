@@ -2,7 +2,10 @@ import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import PokeList from "@/views/PokeList.vue";
 
-Vue.use(VueRouter);
+if (!process || process.env.NODE_ENV !== 'test') {
+  // to prevent conflicts with read-only router instances
+  Vue.use(VueRouter)
+}
 
 const routes: Array<RouteConfig> = [
   {
