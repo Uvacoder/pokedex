@@ -1,24 +1,22 @@
 <template>
-  <div id="app">
+  <div id="app" class="d-flex flex-column h-100">
     <Navbar class="mb-5" />
-    <router-view :pokeList="pokeList" @load-more="loadMorePokemon()" />
-    <footer class="bg-dark text-light py-4 mt-5">
-      <span class="d-block text-center small">
-        No. of Pok&#233;mon loaded: {{ pokeCount }}
-      </span>
-    </footer>
+    <router-view :pokeList="pokeList" @load-more="loadMorePokemon()" class="flex-grow-1 flex-shrink-0" />
+    <Footer :pokeCount="pokeCount" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import Navbar from "@/components/Navbar.vue";
+import Footer from "@/components/Footer.vue";
 
 import { Pokemon } from "@/types";
 
 @Component({
   components: {
-    Navbar
+    Navbar,
+    Footer
   }
 })
 export default class App extends Vue {
@@ -28,7 +26,6 @@ export default class App extends Vue {
 
   mounted() {
     this.fetchData(this.pokeNum);
-    // ToDo: sort by ID
   }
 
   get pokeCount(): number {

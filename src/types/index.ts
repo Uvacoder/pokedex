@@ -7,7 +7,7 @@ export interface Pokemon {
 
 export interface PokemonDetail {
   abilities: Array<string>,
-  evolution: Array<string>,
+  evolution: Array<object>,
   id: number,
   moves: Array<string>,
   name: string,

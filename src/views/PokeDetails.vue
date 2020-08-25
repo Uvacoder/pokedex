@@ -1,15 +1,13 @@
 <template>
   <b-container class="PokeDetails">
     <b-row>
-      <b-col>
-        <h1 class="caps">
-          <span class="text-muted small">Details: </span>
-          {{ pokemon.name }}
-        </h1>
+      <b-col v-if="loadingState">
+        <h1 class="caps">{{ pokemon.name }}</h1>
         <hr class="mb-md-4" />
       </b-col>
+      <Loading v-else />
     </b-row>
-    <b-row>
+    <b-row v-if="loadingState">
       <b-col cols="12" md="6">
         <img :src="pokemon.picture" :alt="pokemon.name" class="img-fluid">
       </b-col>
@@ -35,13 +33,31 @@
         </ul>
       </b-col>
     </b-row>
-    <b-row>
-      <b-col cols="12">
+    <b-row v-if="loadingState">
+      <b-col cols="12" md="6">
         <h2>Abilities</h2>
         <hr />
         <ul class="mb-4">
           <li v-for="(skill, index) in pokemon.abilities" :key="index" class="caps">
             {{ skill }}
+          </li>
+        </ul>
+      </b-col>
+      <b-col v-if="pokemon.evolution.length > 0" cols="12" md="6">
+        <h2>Evolution</h2>
+        <hr />
+        <ul class="list-inline mb-4">
+          <li v-for="(evo, index) in pokemon.evolution" :key="index" class="caps list-inline-item">
+            <router-link
+              :to="{name: 'details', params: {name: evo.name}}"
+              :class="{
+                'disabled': evo.name === pokemon.name
+              }"
+              class="btn btn-sm btn-outline-dark"
+            >
+              {{ evo.name }}
+            </router-link>
+            <b-icon-caret-right v-if="index + 1 < pokemon.evolution.length" />
           </li>
         </ul>
       </b-col>
@@ -57,24 +73,41 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
+import Loading from "@/components/Loading.vue";
+
 import { PokemonDetail } from "@/types";
 
-@Component
+@Component({
+  components: {
+    Loading
+  }
+})
 export default class PokeDetails extends Vue {
   private pokemon: PokemonDetail = Object.create({});
 
-  get pokemonID(): string {
+  get pokemonId(): string {
     return this.$route.params.name;
   }
 
-  mounted() {
-    this.getPokemonDetails(this.pokemonID);
+  get loadingState(): boolean {
+    return this.pokemon.id ? true : false;
+  }
+
+  created() {
+    this.getPokemonDetails(this.pokemonId);
+  }
+
+  @Watch('pokemonId')
+  onPropertyChanged() {
+    // load new pokemon data in case of inter-species navigation (evolutions)
+    this.pokemon = Object.create({}); // fake navigation effect; make the current data disappear, force loading state in case of error
+    this.getPokemonDetails(this.pokemonId);
   }
 
   async getPokemonDetails(id: string): Promise<void> {
-    // get the general pokemon data again, more properties needed this time
-    // also makes sure we have the data in case of direct navigation to this page
+    // get the general pokemon data, more properties needed this time
+    // also makes sure we have current data in case of direct navigation to this page (i.e. from search input)
     const data: Response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
     const returnData = await data.json();
 
@@ -97,7 +130,7 @@ export default class PokeDetails extends Vue {
 
     const thePokemon: PokemonDetail = {
       abilities: pokeAbilities.sort(),
-      evolution: [''],
+      evolution: [],
       id: returnData.id,
       moves: pokeMoves.sort(),
       name: returnData.name,
@@ -108,7 +141,45 @@ export default class PokeDetails extends Vue {
       type: pokeTypes.sort()
     };
 
+    // get evolution data; i.e. resolve the promise coming from that function
+    const pokeEvolution = await this.getPokemonEvolution(thePokemon.id);
+    // assign evolution data to the shaped pokemon
+    thePokemon.evolution = pokeEvolution;
+    // inject the shaped data into the Vue instance's pokemon object
     this.pokemon = Object.assign({}, thePokemon);
+  }
+
+  async getPokemonEvolution(speciesId: number): Promise<Array<object>> {
+    // let's get the species first
+    const species: Response = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${speciesId}`);
+    const returnSpecies = await species.json();
+    // then get the species' evolution chain, i.e. what other pokemon it can evolve into
+    const evoChain: Response = await fetch(`${returnSpecies['evolution_chain'].url}`);
+    const returnEvoChain = await evoChain.json();
+
+    // now go through that nested data - see: https://stackoverflow.com/questions/39112862/pokeapi-angular-how-to-get-pokemons-evolution-chain
+    const pokeEvolution: Array<object> = [];
+    let evoData = returnEvoChain.chain;
+    do {
+      const numberOfEvolutions = evoData['evolves_to'].length;
+
+      pokeEvolution.push({
+        "name": evoData.species.name
+      });
+
+      if(numberOfEvolutions > 1) {
+        for (let i = 1;i < numberOfEvolutions; i++) {
+          pokeEvolution.push({
+            "name": evoData.evolves_to[i].species.name
+        });
+        }
+      }
+
+      evoData = evoData['evolves_to'][0];
+
+    } while (!!evoData && Object.prototype.hasOwnProperty.call(evoData, "evolves_to"));
+
+    return pokeEvolution;
   }
 };
 </script>
