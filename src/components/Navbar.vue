@@ -1,5 +1,5 @@
 <template>
-  <b-navbar toggleable="lg" type="light" variant="light">
+  <b-navbar toggleable="lg" type="light" variant="light" fixed="top">
     <b-navbar-brand>
       <router-link to="/" class="navbar-brand">Pokedex0r</router-link>
     </b-navbar-brand>

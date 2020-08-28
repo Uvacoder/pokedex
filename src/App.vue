@@ -1,10 +1,10 @@
 <template>
   <div id="app" class="d-flex flex-column h-100">
-    <Navbar class="mb-5" />
+    <Navbar />
     <router-view
       :pokeList="pokeList"
       @load-more="loadMorePokemon()"
-      class="flex-grow-1 flex-shrink-0"
+      class="flex-grow-1 flex-shrink-0 mt-5"
     />
     <Footer :pokeCount="currentPokeCount" />
   </div>
@@ -96,6 +96,9 @@
 </script>
 
 <style lang="scss">
+  #app {
+    padding-top: 66px;
+  }
   .caps {
     text-transform: capitalize;
   }
