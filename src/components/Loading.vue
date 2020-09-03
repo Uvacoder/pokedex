@@ -14,7 +14,7 @@
     mounted() {
       this.msg = `Loading data...`;
       setTimeout(() => {
-        this.msg = `Error retrieving data; timeout or invalid Pokemon name.`;
+        this.msg = `Error retrieving data; timeout or invalid request.`;
       }, 5000);
     }
   }

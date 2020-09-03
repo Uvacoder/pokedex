@@ -21,7 +21,13 @@
 <script lang="ts">
   import { Component, Prop, Vue } from "vue-property-decorator";
 
-  @Component
+  import Loading from "@/components/Loading.vue";
+
+  @Component({
+    components: {
+      Loading
+    }
+  })
   export default class Evolution extends Vue {
     @Prop({ required: true }) data!: object[];
     @Prop({ required: true }) id!: number;
