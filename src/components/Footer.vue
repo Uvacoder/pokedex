@@ -12,7 +12,7 @@
   import { Component, Prop, Vue } from "vue-property-decorator";
 
   @Component
-  export default class Navbar extends Vue {
+  export default class Footer extends Vue {
     @Prop({ required: true }) pokeCount!: number;
   }
 </script>

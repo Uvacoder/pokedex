@@ -41,57 +41,29 @@
       </b-col>
     </b-row>
     <b-row v-if="loadingState">
-      <b-col cols="12" md="6">
-        <h2>Abilities</h2>
-        <hr />
-        <ul class="mb-4">
-          <li v-for="(skill, index) in pokemon.abilities" :key="index" class="caps">{{ skill }}</li>
-        </ul>
-      </b-col>
-      <b-col cols="12" md="6">
-        <h2>Evolution</h2>
-        <hr />
-        <ul v-if="pokemon.evolution.length > 0" class="list-inline mb-4">
-          <li v-for="(evo, index) in pokemon.evolution" :key="index" class="caps list-inline-item">
-            <router-link
-              :to="{name: 'details', params: {name: evo.name}}"
-              :class="{
-                'bg-dark text-light disabled': evo.name === pokemon.name
-              }"
-              class="btn btn-sm btn-outline-dark mb-2"
-            >{{ evo.name }}</router-link>
-            <b-icon-caret-right v-if="index + 1 < pokemon.evolution.length" class="mx-2" />
-          </li>
-        </ul>
-        <p v-else class="text-danger">Error: couldn't get evolution data.</p>
-      </b-col>
-      <b-col cols="12">
-        <h2>Moves</h2>
-        <hr />
-        <div class="d-flex flex-wrap">
-          <b-button
-            pill
-            size="sm"
-            v-for="(move, index) in pokemon.moves"
-            :key="index"
-            class="caps m-1"
-            disabled
-          >{{ move }}</b-button>
-        </div>
-      </b-col>
+      <Abilities :data="pokemon.abilities" />
+      <Evolution :data="pokemon.evolution" :id="pokemon.id" :name="pokemon.name" @update:evolution="updateEvolution" />
+      <Moves :data="pokemon.moves" />
     </b-row>
   </b-container>
 </template>
 
 <script lang="ts">
   import { Component, Vue, Watch } from "vue-property-decorator";
+
+  import Abilities from "@/components/pokemon/Abilities.vue";
+  import Evolution from "@/components/pokemon/Evolution.vue";
   import Loading from "@/components/Loading.vue";
+  import Moves from "@/components/pokemon/Moves.vue";
 
   import { PokemonDetail } from "@/types";
 
   @Component({
     components: {
-      Loading
+      Abilities,
+      Evolution,
+      Loading,
+      Moves
     }
   })
   export default class PokeDetails extends Vue {
@@ -163,61 +135,14 @@
           type: pokeTypes.sort()
         };
 
-        // get evolution data; i.e. resolve the promise coming from that function
-        const pokeEvolution = await this.getPokemonEvolution(thePokemon.id);
-        // assign evolution data to the shaped pokemon
-        thePokemon.evolution = pokeEvolution;
         // inject the shaped data into the Vue instance's pokemon object
         this.pokemon = Object.assign({}, thePokemon);
       }
     }
 
-    async getPokemonEvolution(speciesId: number): Promise<Array<object>> {
-      let returnEvoChain;
-      try {
-        // let's get the species first
-        const species: Response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon-species/${speciesId}`
-        );
-        const returnSpecies = await species.json();
-        // then get the species' evolution chain, i.e. what other pokemon it can evolve into
-        const evoChain: Response = await fetch(
-          `${returnSpecies["evolution_chain"].url}`
-        );
-        returnEvoChain = await evoChain.json();
-      } catch (err) {
-        console.log(err);
-      }
-
-      if (returnEvoChain) {
-        // now go through that nested data - see: https://stackoverflow.com/questions/39112862/pokeapi-angular-how-to-get-pokemons-evolution-chain
-        const pokeEvolution: Array<object> = [];
-        let evoData = returnEvoChain.chain;
-        do {
-          const numberOfEvolutions = evoData["evolves_to"].length;
-
-          pokeEvolution.push({
-            name: evoData.species.name
-          });
-
-          if (numberOfEvolutions > 1) {
-            for (let i = 1; i < numberOfEvolutions; i++) {
-              pokeEvolution.push({
-                name: evoData["evolves_to"][i].species.name
-              });
-            }
-          }
-
-          evoData = evoData["evolves_to"][0];
-        } while (
-          !!evoData &&
-          Object.prototype.hasOwnProperty.call(evoData, "evolves_to")
-        );
-
-        return pokeEvolution;
-      } else {
-        // nothing came out of the function call and that's exactly what we'll return -> displays a message to the user
-        return [];
+    updateEvolution(data: object[]): void {
+      if (data.length > 0) {
+        this.pokemon.evolution = data;
       }
     }
   }
