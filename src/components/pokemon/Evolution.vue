@@ -14,7 +14,7 @@
         <b-icon-caret-right v-if="index + 1 < data.length" class="mx-2" />
       </li>
     </ul>
-    <p v-else class="text-danger">Error: couldn't get evolution data.</p>
+    <Loading v-else />
   </b-col>
 </template>
 
